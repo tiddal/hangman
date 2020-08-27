@@ -12,39 +12,45 @@ const Hangman: React.FC = () => {
 
   const [wrongAttempts, setWrongAttempts] = useState(0);
   const [lettersAttempted, setLettersAttempted] = useState(new Set());
+  const [isTheGameOver, setIsTheGameOver] = useState(false);
 
   function evaluateAttempt(event: MouseEvent<HTMLButtonElement>) {
     const letter = event.currentTarget.value;
     setWrongAttempts(wrongAttempts + (defaultValues.answer.includes(letter) ? 0 : 1));
     setLettersAttempted(new Set(lettersAttempted.add(letter)));
-  }
-
-  function guessWord() {
-    return defaultValues.answer.split('').map((letter) => (
-      lettersAttempted.has(letter) ? letter : '_'
-    ));
+    setIsTheGameOver(wrongAttempts + 1 >= defaultValues.wrongAttemptsAllowed);
   }
 
   return (
     <Container>
       <h1>Hangman</h1>
       <img src={defaultValues.images[wrongAttempts]} alt="hangman" />
+      <p>
+        Guessed Wrong:
+        {' '}
+        {wrongAttempts}
+      </p>
       <WordPlaceholder>
-        {guessWord()}
-      </WordPlaceholder>
-      <Keyboard>
-        {'abcdefghijklmnopqrstuvwxyz'.split('').map((letter) => (
-          <button
-            key={letter}
-            type="button"
-            onClick={evaluateAttempt}
-            value={letter}
-            disabled={lettersAttempted.has(letter)}
-          >
-            {letter}
-          </button>
+        {isTheGameOver ? defaultValues.answer : defaultValues.answer.split('').map((letter) => (
+          lettersAttempted.has(letter) ? letter : '_'
         ))}
-      </Keyboard>
+      </WordPlaceholder>
+      {isTheGameOver ? <p>You lose...</p> : (
+        <Keyboard>
+          {'abcdefghijklmnopqrstuvwxyz'.split('').map((letter) => (
+            <button
+              key={letter}
+              type="button"
+              onClick={evaluateAttempt}
+              value={letter}
+              disabled={lettersAttempted.has(letter)}
+            >
+              {letter}
+            </button>
+          ))}
+        </Keyboard>
+      )}
+
     </Container>
   );
 };
